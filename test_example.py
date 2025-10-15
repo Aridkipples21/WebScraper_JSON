@@ -1,14 +1,16 @@
 import json
 from playwright.sync_api import sync_playwright
 
-# URLs to test
+
+
+
 urls = {
-    "staging": "https://edenvalenissan.r-e-d-staging.co.za/",
-    "live": "https://www.edenvalenissan.co.za/"
+    "staging": "https://vaaltata.r-e-d-staging.co.za/",
+    "live": "https://www.vaaltata.co.za/"
 }
 
-# Blacklisted domains or parts of URLs to avoid
-blacklist = ["supergroup.co.za", "facebook.com", "twitter.com", "instagram.com"]
+
+blacklist = ["https://www.supergroupdealerships.co.za/", "https://www.facebook.com/EdenvaleNissan", "twitter.com", "instagram.com", "https://www.youtube.com/user/NissanSouthAfrica"]
 
 visited_urls = set()
 final_results = {}
@@ -49,7 +51,7 @@ def test_clickables(page, clickables, base_url, source):
     for el in clickables:
         href = el.get("href") or ""
 
-        # Skip blacklisted or external links
+        
         if any(bad in href for bad in blacklist) or (href and not href.startswith(base_url)):
             results.append({
                 "selector": el["selector"],
@@ -59,7 +61,7 @@ def test_clickables(page, clickables, base_url, source):
             })
             continue
         
-        # Skip already visited links
+        
         if href in visited_urls:
             results.append({
                 "selector": el["selector"],
@@ -109,19 +111,19 @@ with sync_playwright() as p:
         print(f"\nVisiting [{source.upper()}]: {url}")
         page.goto(url, timeout=20000)
 
-        # Skip if the URL is blacklisted
+        
         if any(bad in url for bad in blacklist):
             print(f"Skipping blacklisted: {url}")
             context.close()
             continue
 
-        # 1️ Scrape text/images/clickables
+        
         data = scrape_page(page, source)
 
-        # 2️ Test clickables
+        
         clicks = test_clickables(page, data["clickables"], base_url=url, source=source)
 
-        # 3️ Store results
+       
         final_results[name] = {
             "url": url,
             "source": source,
@@ -133,7 +135,7 @@ with sync_playwright() as p:
 
     browser.close()
 
-# Save results to JSON
+
 with open("site_comparison.json", "w", encoding="utf-8") as f:
     json.dump(final_results, f, indent=4, ensure_ascii=False)
 
